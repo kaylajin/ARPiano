@@ -2,69 +2,86 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.XR.ARFoundation;
+using UnityEngine.XR.ARSubsystems;
 
 using static Utility;
 
 public class KeyboardManager : MonoBehaviour
 {
+    //TODO ** audio distortion for multiple keys
 
     [SerializeField]
     private Camera arCamera;
+    private static ARRaycastManager raycastManager;
+    private static List<ARRaycastHit> hits = new List<ARRaycastHit>();
+
     [SerializeField]
-    private LayerMask keyboardLayerMask;
+    private GameObject[] keys;
     private Vector2[] touchPositions;
-    private Ray ray;
-    private RaycastHit hit;
 
-    private TextMeshProUGUI textComponent;
     [SerializeField]
-    private TextMeshPro text2;
+    private TextMeshPro textUI;
 
+    private readonly float textUIliveSeconds = 1f;
     // seconds this key is live and cannot played again
     private readonly float liveSeconds = 0.8f;
     private readonly List<string> liveKeys = new List<string>();
 
     void Start()
     {
-        GameObject canvas = GameObject.Find("Canvas");
-        textComponent = canvas.GetComponentInChildren<TextMeshProUGUI>();
+        raycastManager = GameObject.FindObjectOfType<ARRaycastManager>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        PlayAndDisplayChord();
+        if (TrySummonKeys(out Vector3 position) && liveKeys.Count > 0)
+        {
+            string chord = ChordUtility.GetChord(liveKeys);
+            Debug.Log($"Displaying: {chord} for keys pressed {string.Join(", ", liveKeys)} at position {position}");
+            SummonText(chord, position);
+        }
     }
 
-    private void PlayAndDisplayChord()
+    private bool TrySummonKeys(out Vector3 position)
     {
-        if (!TryGetInputPosition(out touchPositions)) return;
+        if (!TryGetInputPosition(out touchPositions) || touchPositions.Length == 0)
+        {
+            position = new Vector3(0,0,0);
+            return false;
+        }
 
-        // Detect Keys Pressed
+        position = new Vector3(0, 0, 0);
+        // Detect touches and Summon keys
         foreach (Vector2 touchPosition in touchPositions)
         {
-
-            ray = arCamera.ScreenPointToRay(touchPosition);
-            if (Physics.Raycast(ray, out hit, Mathf.Infinity, keyboardLayerMask))
+            if (raycastManager.Raycast(touchPosition, hits, TrackableType.AllTypes))
             {
-                string keyName = hit.collider.gameObject.name;
-                KeyboardBehavior key = hit.collider.gameObject.GetComponent<KeyboardBehavior>();
+                int randomIndex = Random.Range(0, keys.Length);
+                Pose pose = hits[0].pose; // first hit
+                position = pose.position; // just take the last one in the array
+                GameObject randomKey = Instantiate(keys[randomIndex], pose.position, arCamera.transform.rotation);
 
-                if (key != null && !key.IsActive())
+                string keyName = randomKey.name.Replace("(Clone)", "");
+                KeyboardBehavior key = randomKey.GetComponent<KeyboardBehavior>();
+                if (!key.IsActive())
                 {
                     PressKey(key, keyName);
                 }
             }
         }
 
-        // Fetch and Display Chord
-        string chord = ChordUtility.GetChord(liveKeys);
-        Debug.Log($"Displaying {chord} given {string.Join(", ", liveKeys)}");
-        textComponent.text = chord;
-        text2.text = chord;
+        return true;
     }
 
-    /* There will be at most 12 coroutines running at a time (for each key) */
+    private void SummonText(string message, Vector3 position)
+    {
+        TextMeshPro textObject = Instantiate(textUI, position, arCamera.transform.rotation);
+        textObject.text = message;
+        Destroy(textObject, textUIliveSeconds);
+    }
+
     private void PressKey(KeyboardBehavior key, string name)
     {
         liveKeys.Add(name);

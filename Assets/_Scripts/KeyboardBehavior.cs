@@ -6,9 +6,9 @@ public class KeyboardBehavior : MonoBehaviour
     private Animation animation;
     private bool active;
 
-    public float speed = 1.0f;
+    private static float destroyTimer = 0.8f;
 
-    void Start()
+    void Awake()
     {
         audioSource = gameObject.GetComponent<AudioSource>();
         animation = gameObject.GetComponent<Animation>();
@@ -31,6 +31,7 @@ public class KeyboardBehavior : MonoBehaviour
     {
         active = false;
         ReleaseAnimation();
+        Destroy(gameObject, destroyTimer);
     }
 
     private void PressAnimation()
