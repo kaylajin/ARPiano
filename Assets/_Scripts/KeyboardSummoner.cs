@@ -7,6 +7,8 @@ using static Utility;
 
 public class KeyboardSummoner: MonoBehaviour
 {
+    [SerializeField]
+    private Camera arCamera;
     private static ARRaycastManager raycastManager;
     private static List<ARRaycastHit> hits = new List<ARRaycastHit>();
 
@@ -26,11 +28,11 @@ public class KeyboardSummoner: MonoBehaviour
         // TODO allow summon only once
         if (!TryGetInputPosition(out touchPositions)) return;
 
+        // TODO positions can be empty
         if (raycastManager.Raycast(touchPositions[0], hits, TrackableType.AllTypes))
         {
             Pose pose = hits[0].pose;
-            Debug.Log($"summoning.. {pose}");
-            Instantiate(keyboard, pose.position, pose.rotation);
+            GameObject ob = Instantiate(keyboard, pose.position, arCamera.transform.rotation);
             gameObject.GetComponent<KeyboardSummoner>().enabled = false;
         }
     }

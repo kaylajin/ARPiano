@@ -17,6 +17,8 @@ public class KeyboardManager : MonoBehaviour
     private RaycastHit hit;
 
     private TextMeshProUGUI textComponent;
+    [SerializeField]
+    private TextMeshPro text2;
 
     // seconds this key is live and cannot played again
     private readonly float liveSeconds = 0.8f;
@@ -59,6 +61,7 @@ public class KeyboardManager : MonoBehaviour
         string chord = ChordUtility.GetChord(liveKeys);
         Debug.Log($"Displaying {chord} given {string.Join(", ", liveKeys)}");
         textComponent.text = chord;
+        text2.text = chord;
     }
 
     /* There will be at most 12 coroutines running at a time (for each key) */

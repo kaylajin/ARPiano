@@ -156,6 +156,7 @@ MonoBehaviour:
   keyboardLayerMask:
     serializedVersion: 2
     m_Bits: 64
+  text2: {fileID: 0}
 --- !u!4 &488830061
 Transform:
   m_ObjectHideFlags: 0
@@ -437,7 +438,6 @@ GameObject:
   - component: {fileID: 720892245}
   - component: {fileID: 720892244}
   - component: {fileID: 720892247}
-  - component: {fileID: 720892246}
   - component: {fileID: 720892248}
   - component: {fileID: 720892249}
   m_Layer: 0
@@ -476,20 +476,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &720892246
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 720892243}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e1760703bbd54c04488a8d10600262ab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_PlanePrefab: {fileID: 2143815021455894159, guid: 4acb4c49f16fe441bba9e34c543883a5, type: 3}
-  m_DetectionMode: -1
 --- !u!114 &720892247
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -515,6 +501,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6352e74995bcb46e2afa894bf5d8507b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  arCamera: {fileID: 951644948}
   keyboard: {fileID: 558805716885427791, guid: 4551a1ec63cff428e9eaa3692544e9e2, type: 3}
 --- !u!114 &720892249
 MonoBehaviour:
