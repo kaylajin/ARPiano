@@ -52,8 +52,8 @@ public class KeyboardManager : MonoBehaviour
             return false;
         }
 
-        position = new Vector3(0, 0, 0);
         // Detect touches and Summon keys
+        position = new Vector3(0, 0, 0);
         foreach (Vector2 touchPosition in touchPositions)
         {
             if (raycastManager.Raycast(touchPosition, hits, TrackableType.AllTypes))
@@ -61,7 +61,12 @@ public class KeyboardManager : MonoBehaviour
                 int randomIndex = Random.Range(0, keys.Length);
                 Pose pose = hits[0].pose; // first hit
                 position = pose.position; // just take the last one in the array
-                GameObject randomKey = Instantiate(keys[randomIndex], pose.position, arCamera.transform.rotation);
+
+                GameObject randomKey = Instantiate(keys[randomIndex], pose.position, Quaternion.identity);
+                Debug.Log($"transform ar camera {pose.position} and rotation {randomKey.transform.rotation}");
+
+
+                //Debug.Log($"transform camera direction {cameraDirection} and rotation {randomKey.transform.rotation}");
 
                 string keyName = randomKey.name.Replace("(Clone)", "");
                 KeyboardBehavior key = randomKey.GetComponent<KeyboardBehavior>();
@@ -77,7 +82,8 @@ public class KeyboardManager : MonoBehaviour
 
     private void SummonText(string message, Vector3 position)
     {
-        TextMeshPro textObject = Instantiate(textUI, position, arCamera.transform.rotation);
+        Vector3 cameraDirection = arCamera.transform.position - position;
+        TextMeshPro textObject = Instantiate(textUI, position, Quaternion.LookRotation(cameraDirection, arCamera.transform.up));
         textObject.text = message;
         Destroy(textObject, textUIliveSeconds);
     }

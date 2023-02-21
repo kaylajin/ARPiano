@@ -6,7 +6,7 @@ public class KeyboardBehavior : MonoBehaviour
     private Animation animation;
     private bool active;
 
-    private static float destroyTimer = 0.8f;
+    private static readonly float destroyTimer = 0.8f;
 
     void Awake()
     {
@@ -36,7 +36,6 @@ public class KeyboardBehavior : MonoBehaviour
 
     private void PressAnimation()
     {
-        //TODO should be rotated from where it's currently at
         animation.Play("KeyPressingAnimation");
     }
 
