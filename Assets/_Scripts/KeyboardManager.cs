@@ -9,15 +9,16 @@ using static Utility;
 
 public class KeyboardManager : MonoBehaviour
 {
-    //TODO ** audio distortion for multiple keys
 
     [SerializeField]
     private Camera arCamera;
     private static ARRaycastManager raycastManager;
     private static List<ARRaycastHit> hits = new List<ARRaycastHit>();
 
-    [SerializeField]
-    private GameObject[] keys;
+    private List<GameObject> keys;
+    private static readonly List<string> whiteKeys = new List<string> { "C3", "D3", "E3", "F3", "G3", "A3", "B3", "C4" };
+    private static readonly List<string> blackKeys = new List<string> { "Db3", "Eb3", "F#3", "Ab3", "Bb3" };
+
     private Vector2[] touchPositions;
 
     [SerializeField]
@@ -31,6 +32,7 @@ public class KeyboardManager : MonoBehaviour
     void Start()
     {
         raycastManager = GameObject.FindObjectOfType<ARRaycastManager>();
+        InitializeKeys(out keys);
     }
 
     // Update is called once per frame
@@ -58,14 +60,15 @@ public class KeyboardManager : MonoBehaviour
         {
             if (raycastManager.Raycast(touchPosition, hits, TrackableType.AllTypes))
             {
-                int randomIndex = Random.Range(0, keys.Length);
+                int randomIndex = Random.Range(0, keys.Count);
                 Pose pose = hits[0].pose; // first hit
                 position = pose.position; // just take the last one in the array
 
-                GameObject randomKey = Instantiate(keys[randomIndex], pose.position, getRotation(pose.position));
+                GameObject randomKey = Instantiate(keys[randomIndex], pose.position, GetQuaternion(pose.position));
+                Debug.Log($"random key {randomKey.name} rotation at {randomKey.transform.eulerAngles} vs {randomKey.transform.localEulerAngles}");
                 
                 string keyName = randomKey.name.Replace("(Clone)", "");
-                KeyboardBehavior key = randomKey.GetComponent<KeyboardBehavior>();
+                KeyboardBehavior key = randomKey.GetComponentInChildren<KeyboardBehavior>();
                 if (!key.IsActive())
                 {
                     PressKey(key, keyName);
@@ -76,9 +79,10 @@ public class KeyboardManager : MonoBehaviour
         return true;
     }
 
-    private Quaternion getRotation(Vector3 position)
+    // Return angle facing the camera, with slightly randomized rotation around y axis.
+    private Quaternion GetQuaternion(Vector3 position)
     {
-        Vector3 cameraDirection = arCamera.transform.position - position;
+        Vector3 cameraDirection = Quaternion.AngleAxis(Random.Range(-45,45), Vector3.up) * (arCamera.transform.position - position);
         return Quaternion.LookRotation(cameraDirection, arCamera.transform.up);
     }
 
@@ -99,8 +103,35 @@ public class KeyboardManager : MonoBehaviour
     private IEnumerator ReleaseKey(KeyboardBehavior key, string name, float delay)
     {
         yield return new WaitForSeconds(delay);
-        Debug.Log($"Now releasing key: {name}");
         liveKeys.Remove(name);
         key.Release();
     }
+
+    private static void InitializeKeys(out List<GameObject> keys)
+    {
+        keys = new List<GameObject>();
+        foreach (string key in whiteKeys)
+        {
+            GameObject newObject = Instantiate(Resources.Load<GameObject>($"Prefabs/WhiteKeyPrefab"), null, false);
+            if (newObject == null) Debug.LogError("Failed to initialize");
+            newObject.name = key;
+            AudioSource audioSource = newObject.GetComponentInChildren<AudioSource>();
+            if (audioSource == null) Debug.LogError("Failed to initialize");
+            audioSource.clip = Resources.Load($"Audio/{key}") as AudioClip;
+            if (audioSource.clip == null) Debug.LogError("Failed to initialize");
+            keys.Add(newObject);
+        }
+        foreach (string key in blackKeys)
+        {
+            GameObject newObject = Instantiate(Resources.Load<GameObject>($"Prefabs/BlackKeyPrefab"), null, false);
+            if (newObject == null) Debug.LogError("Failed to initialize");
+            newObject.name = key;
+            AudioSource audioSource = newObject.GetComponentInChildren<AudioSource>();
+            if (audioSource == null) Debug.LogError("Failed to initialize");
+            audioSource.clip = Resources.Load($"Audio/{key}") as AudioClip;
+            if (audioSource.clip == null) Debug.LogError("Failed to initialize");
+            keys.Add(newObject);
+        }
+    }
+
 }

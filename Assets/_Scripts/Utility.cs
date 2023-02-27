@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class Utility
 {
+
     public static bool TryGetInputPosition(out Vector2[] positions)
     {
         if (Input.touchCount == 0)

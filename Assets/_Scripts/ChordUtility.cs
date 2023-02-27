@@ -6,21 +6,22 @@ using UnityEngine;
 public class ChordUtility
 {
     private static Dictionary<string, double> keysToFrequencies = new Dictionary<string, double> {
-        {"C", 261.63}, //C4 middle C
-        {"Db", 277.18},
-        {"D", 293.66},
-        {"Eb", 311.13},
-        {"E", 329.63},
-        {"F", 349.23},
-        {"F#", 369.99},
-        {"G", 392.0},
-        {"Ab", 415.30},
-        {"A", 440.0},
-        {"Bb", 466.16},
-        {"B", 493.88},
-        {"C2", 523.25} //C5
+        {"C3", 261.63}, //actually C4
+        {"Db3", 277.18},
+        {"D3", 293.66},
+        {"Eb3", 311.13},
+        {"E3", 329.63},
+        {"F3", 349.23},
+        {"F#3", 369.99},
+        {"G3", 392.0},
+        {"Ab3", 415.30},
+        {"A3", 440.0},
+        {"Bb3", 466.16},
+        {"B3", 493.88},
+        {"C4", 523.25} //C5
     };
-    private static Dictionary<double, string> frequenciesToKeys = keysToFrequencies.ToDictionary(x => x.Value, x => x.Key == "C2" ? "C" : x.Key);
+    private static Dictionary<double, string> frequenciesToKeys =
+        keysToFrequencies.ToDictionary(x => x.Value, x => x.Key == "C4" ? "C" : x.Key.Replace("3", ""));
 
     public static string GetChord(List<string> keysPressed)
     {
@@ -38,7 +39,7 @@ public class ChordUtility
         }
         frequencies.Sort();
 
-        // TODO rootless voicings/tensions? - need the root in context
+        // TODO rootless voicings/tensions? - actually need the root in context
         // TODO sus4 aug7 tension support - more than one notes with intervals < 3
 
         // Find the root first
